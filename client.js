@@ -5,16 +5,7 @@ const handshake = require('pull-handshake');
 const toStream = require('pull-stream-to-stream');
 const dnode = require('dnode');
 
-const cookie = "01234567890123456789012345678912";
-
-console.log('Hello World');
-
-let slider = document.getElementById('slider');
-slider.max = 1;
-slider.min = 0;
-slider.step = 0.01;
-
-function shakeHands(cb) {
+function shakeHands(cookie, cb) {
     let stream = handshake(cb); // TODO: smae cb as below?!
     let shake = stream.handshake;
     shake.write(Buffer.from(cookie));
@@ -26,31 +17,30 @@ function shakeHands(cb) {
     return stream;
 }
 
-ws('/backend', {binary: true, onConnect: (err, proxy) => {
-    let client = shakeHands( (err, backend) => {
-        if (err) {
-            console.log(err);
-            return pull.error(err);
-        } else {
-            console.log('handshake successful');
-        }
-        let d = dnode({
-            setSlider: function(x) {
-                console.log('slider pos', x);
-                slider.value = Number(x);
-           }
-        }).on('remote', (remote)=>{
-            slider.addEventListener('input', ()=>{
-                remote.setBrightness(slider.value);
-            });
+module.exports = function(cookie, api, opts, cb) {
+    if (typeof opts === 'function') {
+        cb = opts; opts = {};
+    }
+    let wsPath = opts.wsPath || '/backend';
+
+    ws(wsPath, {binary: true, onConnect: (err, proxy) => {
+        if (err) return cb(err);
+        let client = shakeHands(cookie, (err, backend) => {
+            if (err) {
+                cb(err);
+                return pull.error(err);
+            } else {
+                console.log('handshake successful');
+            }
+            let d = dnode(api).on('remote', remote => cb(null, remote) );
+            d.pipe(toStream(
+                pull(
+                    pull.map( s => Buffer.from(s) ),
+                    backend,
+                    pull.map( b => b.toString() )
+                )
+            )).pipe(d);
         });
-        d.pipe(toStream(
-            pull(
-                pull.map( s => Buffer.from(s) ),
-                backend,
-                pull.map( b => b.toString() )
-            )
-        )).pipe(d);
-    });
-    pull(client, proxy, client);
-}});
+        pull(client, proxy, client);
+    }});
+};

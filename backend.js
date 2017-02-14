@@ -6,6 +6,8 @@ const crypto = require('crypto');
 const pull = require('pull-stream');
 const tcp = require('pull-net/client');
 const handshake = require('pull-handshake');
+const toStream = require('pull-stream-to-stream');
+const dnode = require('dnode');
 
 function shakeHands(cb) {
     let stream = handshake(cb); // TODO: smae cb as below?!
@@ -23,12 +25,22 @@ function shakeHands(cb) {
 }
 
 let backend = shakeHands( (err, client) => {
-    if (err) throw err;
-    pull(
-        client,
-        pull.map( b => Buffer.from(b.toString().toUpperCase()) ),
-        client
-    );
+    if (err) return pull.error(err);
+    let d = dnode({
+        setBrightness: function(b) {
+            console.log('new brightness', b);
+        }
+    }).on('remote', (remote)=>{
+        remote.setSlider(0.6);
+    });
+    
+    d.pipe(toStream(
+        pull(
+            pull.map( s => Buffer.from(s) ),
+            client,
+            pull.map( b => b.toString() )
+        )
+    )).pipe(d);
 });
 
 let tcpStream = tcp(9998, '127.0.0.1');

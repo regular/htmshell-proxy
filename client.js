@@ -1,11 +1,18 @@
 //jshint esversion: 6
-console.log('Hello World');
-
 const pull = require('pull-stream');
 const ws = require('pull-ws/client');
 const handshake = require('pull-handshake');
+const toStream = require('pull-stream-to-stream');
+const dnode = require('dnode');
 
 const cookie = "01234567890123456789012345678912";
+
+console.log('Hello World');
+
+let slider = document.getElementById('slider');
+slider.max = 1;
+slider.min = 0;
+slider.step = 0.01;
 
 function shakeHands(cb) {
     let stream = handshake(cb); // TODO: smae cb as below?!
@@ -27,16 +34,23 @@ ws('/backend', {binary: true, onConnect: (err, proxy) => {
         } else {
             console.log('handshake successful');
         }
-        pull(
-            pull.values('Hallo welt, wie geht es dir?'.split(" ")),
-            pull.asyncMap( (s, cb) => setTimeout(
-                ()=>cb(null, Buffer.from(s)),
-               1000 )
-            ),
-            backend,
-            pull.map( b => b.toString() ),
-            pull.log()
-        );
+        let d = dnode({
+            setSlider: function(x) {
+                console.log('slider pos', x);
+                slider.value = Number(x);
+           }
+        }).on('remote', (remote)=>{
+            slider.addEventListener('input', ()=>{
+                remote.setBrightness(slider.value);
+            });
+        });
+        d.pipe(toStream(
+            pull(
+                pull.map( s => Buffer.from(s) ),
+                backend,
+                pull.map( b => b.toString() )
+            )
+        )).pipe(d);
     });
     pull(client, proxy, client);
 }});

@@ -11,6 +11,7 @@
   "dependencies": {
     "ecstatic": "^2.1.0",
     "muxrpc": "^6.3.3",
+    "pull-defer": "^0.2.2",
     "pull-handshake": "^1.1.4",
     "pull-length-prefixed": "^1.2.0",
     "pull-net": "^1.0.0",

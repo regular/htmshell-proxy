@@ -1,0 +1,23 @@
+{
+  "name": "proxy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jan Bölsche <jan@lagomorph.de> (http://regular.codes)",
+  "license": "MIT",
+  "dependencies": {
+    "ecstatic": "^2.1.0",
+    "muxrpc": "^6.3.3",
+    "pull-handshake": "^1.1.4",
+    "pull-length-prefixed": "^1.2.0",
+    "pull-net": "^1.0.0",
+    "pull-stream": "^3.5.0",
+    "pull-ws": "^3.2.8"
+  },
+  "devDependencies": {
+    "browserify": "^14.1.0"
+  }
+}

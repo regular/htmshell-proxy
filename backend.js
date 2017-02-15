@@ -12,7 +12,10 @@ function shakeHands(random, cb) {
     console.log(`Random cookie: ${random}`);
     shake.write(random);
     shake.read(2, (err, data) => {
-        if (err) return cb(err);
+        if (err) {
+            console.error(`backend proxy: read failed: ${err}`);
+            return cb(err);
+        }
         if (data.toString() == 'OK') return cb(null, shake.rest());
         cb(new Error(`Handshake failed: ${data.toString()}`));
     });

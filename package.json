@@ -1,10 +1,11 @@
 {
   "name": "htmshell-proxy",
   "version": "1.0.0",
-  "description": "",
+  "description": "Connects frontends and backends of htmshell applications",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "author": "Jan Bölsche <jan@lagomorph.de> (http://regular.codes)",
   "license": "MIT",
@@ -22,5 +23,16 @@
   },
   "devDependencies": {
     "browserify": "^14.1.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/regular/htmshell-proxy.git"
+  },
+  "keywords": [
+    "htmshell"
+  ],
+  "bugs": {
+    "url": "https://github.com/regular/htmshell-proxy/issues"
+  },
+  "homepage": "https://github.com/regular/htmshell-proxy#readme"
 }

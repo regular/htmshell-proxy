@@ -35,7 +35,19 @@ module.exports = function(cookie, api, opts, cb) {
             cb(err);
             return pull.error(err);
         }
-        let d = dnode(api).on('remote', remote => cb(null, remote) );
+        let d = dnode(api).on('remote', remote => {
+            if (typeof remote.setProcessProperties === "function") {
+                console.log('Passing process properties to client');
+                remote.setProcessProperties(
+                    process.argv,
+                    process.env,
+                    (err) => cb(err, remote)
+                );
+            } else {
+                console.log('client API has no setProcessProperties.');
+                cb(null, remote);
+            }
+        });
         
         d.pipe(toStream(
             pull(
